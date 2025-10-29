@@ -1,0 +1,48 @@
+name: Nightly Playwright Tests
+
+on:
+  schedule:
+    # Run every day at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      
+    - name: Run Playwright tests with retries
+      run: npx playwright test --retries=3
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: nightly-playwright-report-${{ github.run_id }}
+        path: playwright-report/
+        retention-days: 30
+        compression-level: 9
+        
+    - name: Create test summary
+      if: always()
+      run: |
+        echo "## Nightly Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "- **Date**: $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+        if [ -f "playwright-report/index.html" ]; then
+          echo "- **Report**: Available in artifacts" >> $GITHUB_STEP_SUMMARY
+        fi
