@@ -49,7 +49,7 @@ class RegisterPage {
 
     async fillPersonalDetails(password, day, month, year) {
         // Wait for the form to be fully loaded
-        await this.page.waitForLoadState('networkidle', { timeout: 30000 });
+        await this.page.waitForLoadState('load', { timeout: 30000 });
         
         // Wait for gender field to be available and click it
         await this.genderField.waitFor({ state: 'visible', timeout: 10000 });
