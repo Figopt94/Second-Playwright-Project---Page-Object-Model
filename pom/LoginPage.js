@@ -32,7 +32,7 @@ class LoginPage {
 
     async VerificarSeUsuarioEstaLogado() {
         // Wait for navigation to complete
-        await this.page.waitForLoadState('networkidle', { timeout: 30000 });
+        await this.page.waitForLoadState('load', { timeout: 30000 });
         
         // Check if we're on the right domain
         await expect(this.page).toHaveURL(/automationexercise.com/, { timeout: 10000 });
